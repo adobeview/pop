@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+&lt;?php<br/>
+/*<br/>
+This PHP class is free software: you can redistribute it and/or modify<br/>
+the code under the terms of the GNU General Public License as published by<br/>
+the Free Software Foundation, either version 3 of the License, or<br/>
+(at your option) any later version. <br/>
+<br/>
+However, the license header, copyright and author credits <br/>
+must not be modified in any form and always be displayed.<br/>
+<br/>
+This class is distributed in the hope that it will be useful,<br/>
+but WITHOUT ANY WARRANTY; without even the implied warranty of<br/>
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br/>
+GNU General Public License for more details.<br/>
+<br/>
+@author geoPlugin (gp_support@geoplugin.com)<br/>
+@copyright Copyright geoPlugin (gp_support@geoplugin.com)<br/>
+$version 1.01<br/>
+<br/>
+<br/>
+This PHP class uses the PHP Webservice of http://www.geoplugin.com/ to geolocate IP addresses<br/>
+<br/>
+Geographical location of the IP address (visitor) and locate currency (symbol, code and exchange rate) are returned.<br/>
+<br/>
+See http://www.geoplugin.com/webservices/php for more specific details of this free service<br/>
+<br/>
+*/<br/>
+<br/>
+class geoPlugin {<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;//the geoPlugin server<br/>
+&nbsp;&nbsp;&nbsp;var $host = &#39;http://www.geoplugin.net/php.gp?ip={IP}&amp;base_currency={CURRENCY}&#39;;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;//the default base currency<br/>
+&nbsp;&nbsp;&nbsp;var $currency = &#39;USD&#39;;<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;//initiate the geoPlugin vars<br/>
+&nbsp;&nbsp;&nbsp;var $ip = null;<br/>
+&nbsp;&nbsp;&nbsp;var $city = null;<br/>
+&nbsp;&nbsp;&nbsp;var $region = null;<br/>
+&nbsp;&nbsp;&nbsp;var $areaCode = null;<br/>
+&nbsp;&nbsp;&nbsp;var $dmaCode = null;<br/>
+&nbsp;&nbsp;&nbsp;var $countryCode = null;<br/>
+&nbsp;&nbsp;&nbsp;var $countryName = null;<br/>
+&nbsp;&nbsp;&nbsp;var $continentCode = null;<br/>
+&nbsp;&nbsp;&nbsp;var $latitude = null;<br/>
+&nbsp;&nbsp;&nbsp;var $longitude = null;<br/>
+&nbsp;&nbsp;&nbsp;var $currencyCode = null;<br/>
+&nbsp;&nbsp;&nbsp;var $currencySymbol = null;<br/>
+&nbsp;&nbsp;&nbsp;var $currencyConverter = null;<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;function geoPlugin() {<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;function locate($ip = null) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;global $_SERVER;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( is_null( $ip ) ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$ip = $_SERVER[&#39;REMOTE_ADDR&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$host = str_replace( &#39;{IP}&#39;, $ip, $this&ndash;&gt;host );<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$host = str_replace( &#39;{CURRENCY}&#39;, $this&ndash;&gt;currency, $host );<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$data = array();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$response = $this&ndash;&gt;fetch($host);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$data = unserialize($response);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//set the geoPlugin vars<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;ip = $ip;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;city = $data[&#39;geoplugin_city&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;region = $data[&#39;geoplugin_region&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;areaCode = $data[&#39;geoplugin_areaCode&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;dmaCode = $data[&#39;geoplugin_dmaCode&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;countryCode = $data[&#39;geoplugin_countryCode&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;countryName = $data[&#39;geoplugin_countryName&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;continentCode = $data[&#39;geoplugin_continentCode&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;latitude = $data[&#39;geoplugin_latitude&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;longitude = $data[&#39;geoplugin_longitude&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;currencyCode = $data[&#39;geoplugin_currencyCode&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;currencySymbol = $data[&#39;geoplugin_currencySymbol&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this&ndash;&gt;currencyConverter = $data[&#39;geoplugin_currencyConverter&#39;];<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;function fetch($host) {<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( function_exists(&#39;curl_init&#39;) ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//use cURL to fetch data<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$ch = curl_init();<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curl_setopt($ch, CURLOPT_URL, $host);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curl_setopt($ch, CURLOPT_USERAGENT, &#39;geoPlugin PHP Class v1.0&#39;);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$response = curl_exec($ch);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curl_close ($ch);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else if ( ini_get(&#39;allow_url_fopen&#39;) ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//fall back to fopen()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$response = file_get_contents($host, &#39;r&#39;);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trigger_error (&#39;geoPlugin class Error: Cannot retrieve data. Either compile PHP with cURL support or enable allow_url_fopen in php.ini &#39;, E_USER_ERROR);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $response;<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;function convert($amount, $float=2, $symbol=true) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//easily convert amounts to geolocated currency.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( !is_numeric($this&ndash;&gt;currencyConverter) || $this&ndash;&gt;currencyConverter == 0 ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trigger_error(&#39;geoPlugin class Notice: currencyConverter has no value.&#39;, E_USER_NOTICE);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $amount;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( !is_numeric($amount) ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trigger_error (&#39;geoPlugin class Warning: The amount passed to geoPlugin::convert is not numeric.&#39;, E_USER_WARNING);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $amount;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( $symbol === true ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $this&ndash;&gt;currencySymbol . round( ($amount * $this&ndash;&gt;currencyConverter), $float );<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return round( ($amount * $this&ndash;&gt;currencyConverter), $float );<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;function nearby($radius=10, $limit=null) {<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( !is_numeric($this&ndash;&gt;latitude) || !is_numeric($this&ndash;&gt;longitude) ) {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trigger_error (&#39;geoPlugin class Warning: Incorrect latitude or longitude values.&#39;, E_USER_NOTICE);<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return array( array() );<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$host = &quot;http://www.geoplugin.net/extras/nearby.gp?lat=&quot; . $this&ndash;&gt;latitude . &quot;&amp;long=&quot; . $this&ndash;&gt;longitude . &quot;&amp;radius={$radius}&quot;;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if ( is_numeric($limit) )<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$host .= &quot;&amp;limit={$limit}&quot;;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return unserialize( $this&ndash;&gt;fetch($host) );<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;<br/>
+}<br/>
+<br/>
+?&gt;</body></html>
